@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股市猎人测验 - 你是持镰刀的猎人还是待割的韭菜？</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: rgba(20, 20, 30, 0.8);
+            --neon-green: #00ff88;
+            --neon-red: #ff3366;
+            --neon-blue: #00d4ff;
+            --neon-purple: #b829dd;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.6);
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg-dark);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* 背景动画 */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(ellipse at 20% 80%, rgba(0, 212, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(184, 41, 221, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(0, 255, 136, 0.05) 0%, transparent 70%);
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* 容器 */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* 页面通用样式 */
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 欢迎页 */
+        .welcome-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--neon-green), var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .welcome-subtitle {
+            font-size: 1.2rem;
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, rgba(255, 51, 102, 0.1), rgba(255, 51, 102, 0.05));
+            border: 1px solid rgba(255, 51, 102, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .warning-box::before {
+            content: '⚠️';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 2rem;
+            opacity: 0.3;
+        }
+
+        .warning-text {
+            color: var(--neon-red);
+            font-size: 0.95rem;
+            line-height: 1.8;
+        }
+
+        .intro-text {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .intro-text p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .intro-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .intro-highlight {
+            color: var(--neon-green);
+            font-weight: 600;
+        }
+
+        /* 按钮 */
+        .btn {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+            padding: 18px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-green), #00cc6a);
+            color: #000;
+            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(0, 255, 136, 0.4);
+        }
+
+        .btn-option {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 15px;
+            text-align: left;
+            padding: 20px 25px;
+            max-width: 100%;
+        }
+
+        .btn-option:hover {
+            border-color: var(--neon-blue);
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .btn-option.selected {
+            border-color: var(--neon-green);
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        /* 答题页 */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 15px 20px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-info {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .progress-info span {
+            color: var(--neon-green);
+            font-weight: 700;
+        }
+
+        .survival-rate {
+            font-size: 0.9rem;
+            color: var(--neon-green);
+        }
+
+        .survival-rate.danger {
+            color: var(--neon-red);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .question-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .question-number {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+            color: #fff;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .question-category {
+            display: inline-block;
+            margin-left: 10px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            margin-bottom: 25px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            padding: 18px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option-item:hover {
+            border-color: var(--neon-blue);
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .option-item.selected-yes {
+            border-color: var(--neon-green);
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .option-item.selected-partial {
+            border-color: var(--neon-blue);
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .option-item.selected-no {
+            border-color: var(--neon-red);
+            background: rgba(255, 51, 102, 0.1);
+        }
+
+        .option-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+
+        .option-icon.yes { background: rgba(0, 255, 136, 0.2); }
+        .option-icon.partial { background: rgba(0, 212, 255, 0.2); }
+        .option-icon.no { background: rgba(255, 51, 102, 0.2); }
+
+        .option-text {
+            flex: 1;
+            font-size: 1rem;
+        }
+
+        /* 导航按钮 */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .btn-nav {
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-prev {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .btn-prev:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            color: #fff;
+        }
+
+        .btn-next:hover {
+            opacity: 0.9;
+        }
+
+        .btn-next:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 结果页 */
+        .result-container {
+            text-align: center;
+        }
+
+        .result-badge {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            position: relative;
+        }
+
+        .result-badge::before {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, var(--neon-green), var(--neon-blue), var(--neon-purple), var(--neon-green));
+            animation: rotate 3s linear infinite;
+            z-index: -1;
+        }
+
+        .result-badge::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: var(--bg-dark);
+        }
+
+        .result-badge span {
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .result-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .result-score {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .result-score span {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .result-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .result-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: left;
+        }
+
+        .result-card h3 {
+            color: var(--neon-green);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .result-card p, .result-card li {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .result-card ul {
+            padding-left: 20px;
+        }
+
+        .result-card li {
+            margin-bottom: 8px;
+        }
+
+        .advice-box {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 212, 255, 0.1));
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .advice-box h3 {
+            color: var(--neon-green);
+            margin-bottom: 10px;
+        }
+
+        .advice-box p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .dimension-scores {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .dimension-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .dimension-name {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .dimension-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .dimension-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.8s ease;
+        }
+
+        .dimension-fill.high { background: var(--neon-green); }
+        .dimension-fill.medium { background: var(--neon-blue); }
+        .dimension-fill.low { background: var(--neon-red); }
+
+        .dimension-score {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .btn-restart {
+            background: transparent;
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-blue);
+            margin-top: 20px;
+        }
+
+        .btn-restart:hover {
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        /* 加载动画 */
+        .loading-container {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .loading-spinner::before,
+        .loading-spinner::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            border: 3px solid transparent;
+        }
+
+        .loading-spinner::before {
+            width: 100%;
+            height: 100%;
+            border-top-color: var(--neon-green);
+            border-right-color: var(--neon-blue);
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-spinner::after {
+            width: 60%;
+            height: 60%;
+            top: 20%;
+            left: 20%;
+            border-bottom-color: var(--neon-purple);
+            border-left-color: var(--neon-red);
+            animation: spin 1.5s linear infinite reverse;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+        }
+
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        /* 响应式 */
+        @media (max-width: 600px) {
+            .welcome-title {
+                font-size: 1.8rem;
+            }
+
+            .question-text {
+                font-size: 1rem;
+            }
+
+            .option-item {
+                padding: 15px;
+            }
+
+            .result-badge {
+                width: 120px;
+                height: 120px;
+                font-size: 3rem;
+            }
+
+            .dimension-scores {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <div class="container">
+        <!-- 欢迎页 -->
+        <div id="welcome-page" class="page active">
+            <h1 class="welcome-title">股市猎人测验</h1>
+            <p class="welcome-subtitle">你是持镰刀的猎人，还是待收割的韭菜？</p>
+            
+            <div class="warning-box">
+                <p class="warning-text">
+                    <strong>警告：</strong>金融市场永远是一个零和甚至负和博弈的黑暗森林。
+                    在入市之前，请先掂量掂量自己。以下15个问题，如果你无法给出清晰、笃定的答案，
+                    <strong>请立刻远离股市</strong>。
+                </p>
+            </div>
+            
+            <div class="intro-text">
+                <p>🎮 <span class="intro-highlight">手痒可以玩虚拟盘</span> —— 虚拟盘不带情绪，如果虚拟盘都亏钱，那么实盘就是纯送钱。</p>
+                <p>📊 本测试涵盖财务分析、技术分析、宏观经济、风险管理等7大维度。</p>
+                <p>⏱️ 预计用时 3-5 分钟</p>
+            </div>
+            
+            <button class="btn btn-primary" onclick="startQuiz()">开始测验</button>
+        </div>
+
+        <!-- 答题页 -->
+        <div id="quiz-page" class="page">
+            <div class="quiz-header">
+                <div>
+                    <div class="progress-info">问题 <span id="current-question">1</span> / 15</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill" style="width: 6.67%"></div>
+                    </div>
+                </div>
+                <div class="survival-rate" id="survival-rate">生存率: --</div>
+            </div>
+            
+            <div class="question-card">
+                <div>
+                    <span class="question-number" id="question-num">Q1</span>
+                    <span class="question-category" id="question-category">财务分析</span>
+                </div>
+                <p class="question-text" id="question-text">加载中...</p>
+                
+                <div class="options-container">
+                    <div class="option-item" onclick="selectOption('yes')">
+                        <div class="option-icon yes">✓</div>
+                        <div class="option-text">完全能做到 / 完全了解</div>
+                    </div>
+                    <div class="option-item" onclick="selectOption('partial')">
+                        <div class="option-icon partial">~</div>
+                        <div class="option-text">部分了解 / 不太确定</div>
+                    </div>
+                    <div class="option-item" onclick="selectOption('no')">
+                        <div class="option-icon no">✗</div>
+                        <div class="option-text">完全不了解 / 完全做不到</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="btn-nav btn-prev" onclick="prevQuestion()">上一题</button>
+                <button class="btn-nav btn-next" id="next-btn" onclick="nextQuestion()" disabled>下一题</button>
+            </div>
+        </div>
+
+        <!-- 加载页 -->
+        <div id="loading-page" class="page">
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <p class="loading-text">正在分析你的投资能力<span class="loading-dots"></span></p>
+            </div>
+        </div>
+
+        <!-- 结果页 -->
+        <div id="result-page" class="page">
+            <div class="result-container">
+                <div class="result-badge" id="result-badge">
+                    <span id="result-icon">🗡️</span>
+                </div>
+                
+                <h2 class="result-title" id="result-title">持镰刀的猎人</h2>
+                <div class="result-score" id="result-score">95<span>/118</span></div>
+                <p class="result-subtitle" id="result-subtitle">你已经具备了在股市生存的核心能力</p>
+                
+                <div class="advice-box" id="advice-box">
+                    <h3>💡 投资建议</h3>
+                    <p id="advice-text">建议内容...</p>
+                </div>
+                
+                <div class="result-card">
+                    <h3>📊 各维度得分</h3>
+                    <div class="dimension-scores" id="dimension-scores">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+                
+                <div class="result-card">
+                    <h3>✅ 你的优势</h3>
+                    <ul id="strengths-list">
+                        <!-- 动态生成 -->
+                    </ul>
+                </div>
+                
+                <div class="result-card">
+                    <h3>⚠️ 需要加强</h3>
+                    <ul id="weaknesses-list">
+                        <!-- 动态生成 -->
+                    </ul>
+                </div>
+                
+                <button class="btn btn-restart" onclick="restartQuiz()">重新测验</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 15道测试题目
+        const questions = [
+            {
+                id: 1,
+                category: "财务分析",
+                text: "根据公司年度报表，你能在五分钟内大致分析出公司的财务状况（如资产负债率、现金流健康度、盈利质量）吗？",
+                weight: 6,
+                dimension: "基础能力"
+            },
+            {
+                id: 2,
+                category: "业务分析",
+                text: "你能在十五分钟内找到该公司的主要业务、上下游公司，并列出该公司各主要业务在行业中的竞争力如何吗？",
+                weight: 6,
+                dimension: "基础能力"
+            },
+            {
+                id: 3,
+                category: "技术分析",
+                text: "给你一个股票的K线图表，你能在30秒内看出当前股票的大趋势和中等趋势吗（比如上涨趋势中的潜在反转顶部、下跌趋势中的横向盘整）？",
+                weight: 6,
+                dimension: "基础能力"
+            },
+            {
+                id: 4,
+                category: "技术分析",
+                text: "你能熟练掌握至少一门技术分析手段吗？如果已经有一门，你能掌握多门技术分析手段并交叉验证（如均线系统、MACD、量价关系、波浪理论等）吗？",
+                weight: 6,
+                dimension: "基础能力"
+            },
+            {
+                id: 5,
+                category: "宏观经济",
+                text: "你至少粗略地读过宏观经济学，并了解当前国家的主要经济政策、货币政策（如降息降准、M2增速、CPI数据等）及其对流动性的影响吗？",
+                weight: 8,
+                dimension: "进阶能力"
+            },
+            {
+                id: 6,
+                category: "资产定价",
+                text: "你了解金融（及其衍生）资产的定价公式（如DCF模型、CAPM模型）吗？能够通过证券估值法简单为稳定盈利的公司股票定价，判断其是被高估还是低估吗？",
+                weight: 8,
+                dimension: "进阶能力"
+            },
+            {
+                id: 7,
+                category: "市场知识",
+                text: "你完全熟悉市场中的所有主要名词及其意义吗（如很多人甚至分不清\"减持\"和\"解禁\"的区别，不了解\"同比\"与\"环比\"的意义）？",
+                weight: 6,
+                dimension: "基础能力"
+            },
+            {
+                id: 8,
+                category: "交易机制",
+                text: "你完全熟悉分红（除权除息）、订单竞价规则、涨跌停板等详细的市场交易机制吗？",
+                weight: 6,
+                dimension: "基础能力"
+            },
+            {
+                id: 9,
+                category: "组合管理",
+                text: "你会建立简单的套利、价差、逆相关投资组合来规避风险或得到稳定收益吗（如建立国债-股票组合、通过期货套保、通过期权套保）？",
+                weight: 8,
+                dimension: "进阶能力"
+            },
+            {
+                id: 10,
+                category: "量化分析",
+                text: "你会做简单的量化，包括扒取市场数据、寻找简单因子、分析因子相关性并进行历史回测吗？",
+                weight: 8,
+                dimension: "进阶能力"
+            },
+            {
+                id: 11,
+                category: "风险管理",
+                text: "你是否有极其明确且冷血的仓位管理原则和绝对止损线？（例如：单笔交易最大亏损绝不超总本金的2%；大盘破位时无条件清仓。你能在触及止损时，毫不犹豫地按下卖出键吗？）",
+                weight: 10,
+                dimension: "核心能力"
+            },
+            {
+                id: 12,
+                category: "心理素质",
+                text: "面对账户突然出现30%以上的连续阴跌（浮亏），或者眼睁睁看着别人买的妖股翻倍而自己连续踏空，你是否能保持睡眠质量，且绝对不会因为焦虑、恐慌或贪婪而违背原定的交易计划？",
+                weight: 10,
+                dimension: "核心能力"
+            },
+            {
+                id: 13,
+                category: "资金管理",
+                text: "你准备投入股市的资金，是否是未来3-5年内绝对不会用到、即使全部亏损也不会影响你和家人正常生活质量的\"闲钱\"？你是否坚决杜绝了任何形式的网贷、信用卡或场外配资加杠杆行为？",
+                weight: 10,
+                dimension: "核心能力"
+            },
+            {
+                id: 14,
+                category: "竞争优势",
+                text: "在华尔街/A股和顶级机构拥有超级计算机、内幕信息、顶尖数学家和毫秒级交易通道的市场里，作为个人投资者，你清楚自己的\"核心竞争优势\"究竟是什么吗？（是拥有跨越牛熊的绝对耐心？是深耕某一个特定行业的产业认知？还是某种独特的套利策略？）",
+                weight: 10,
+                dimension: "核心能力"
+            },
+            {
+                id: 15,
+                category: "交易系统",
+                text: "你是否有一套成文的（写在纸上或电脑里的）交易系统？并且你是否能做到坚持记录\"交易日记\"，不凭感觉做单，而是客观复盘每一笔盈利和亏损背后的逻辑失误？",
+                weight: 10,
+                dimension: "核心能力"
+            }
+        ];
+
+        // 评分标准
+        const scores = {
+            yes: 1.0,      // 完全能做到 - 满分
+            partial: 0.5,  // 部分了解 - 半分
+            no: 0          // 完全不了解 - 0分
+        };
+
+        // 状态管理
+        let currentQuestionIndex = 0;
+        let answers = [];
+
+        // 开始测验
+        function startQuiz() {
+            document.getElementById('welcome-page').classList.remove('active');
+            document.getElementById('quiz-page').classList.add('active');
+            currentQuestionIndex = 0;
+            answers = new Array(questions.length).fill(null);
+            renderQuestion();
+        }
+
+        // 渲染当前问题
+        function renderQuestion() {
+            const question = questions[currentQuestionIndex];
+            
+            document.getElementById('current-question').textContent = currentQuestionIndex + 1;
+            document.getElementById('question-num').textContent = `Q${question.id}`;
+            document.getElementById('question-category').textContent = question.category;
+            document.getElementById('question-text').textContent = question.text;
+            
+            // 更新进度条
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progress-fill').style.width = `${progress}%`;
+            
+            // 更新生存率估算
+            updateSurvivalRate();
+            
+            // 清除选项选中状态
+            document.querySelectorAll('.option-item').forEach(item => {
+                item.className = 'option-item';
+            });
+            
+            // 恢复已选答案
+            const savedAnswer = answers[currentQuestionIndex];
+            if (savedAnswer) {
+                const optionIndex = savedAnswer === 'yes' ? 0 : savedAnswer === 'partial' ? 1 : 2;
+                document.querySelectorAll('.option-item')[optionIndex].classList.add(`selected-${savedAnswer}`);
+            }
+            
+            // 更新按钮状态
+            document.getElementById('next-btn').disabled = !savedAnswer;
+            document.getElementById('next-btn').textContent = 
+                currentQuestionIndex === questions.length - 1 ? '查看结果' : '下一题';
+            
+            // 第一题隐藏上一题按钮
+            document.querySelector('.btn-prev').style.visibility = 
+                currentQuestionIndex === 0 ? 'hidden' : 'visible';
+        }
+
+        // 更新生存率显示
+        function updateSurvivalRate() {
+            const answeredCount = answers.filter(a => a !== null).length;
+            const currentScore = calculateCurrentScore();
+            const maxPossible = questions.slice(0, answeredCount).reduce((sum, q) => sum + q.weight, 0);
+            
+            if (answeredCount === 0) {
+                document.getElementById('survival-rate').textContent = '生存率: --';
+                return;
+            }
+            
+            const rate = maxPossible > 0 ? Math.round((currentScore / maxPossible) * 100) : 0;
+            const rateEl = document.getElementById('survival-rate');
+            rateEl.textContent = `生存率: ${rate}%`;
+            rateEl.className = rate >= 70 ? 'survival-rate' : rate >= 40 ? 'survival-rate' : 'survival-rate danger';
+        }
+
+        // 计算当前得分
+        function calculateCurrentScore() {
+            let score = 0;
+            answers.forEach((answer, index) => {
+                if (answer && questions[index]) {
+                    score += questions[index].weight * scores[answer];
+                }
+            });
+            return score;
+        }
+
+        // 选择选项
+        function selectOption(value) {
+            answers[currentQuestionIndex] = value;
+            
+            // 更新UI
+            document.querySelectorAll('.option-item').forEach(item => {
+                item.className = 'option-item';
+            });
+            
+            const optionIndex = value === 'yes' ? 0 : value === 'partial' ? 1 : 2;
+            document.querySelectorAll('.option-item')[optionIndex].classList.add(`selected-${value}`);
+            
+            document.getElementById('next-btn').disabled = false;
+            
+            // 移除自动下一题，避免误操作
+            // setTimeout(() => {
+            //     if (currentQuestionIndex < questions.length - 1) {
+            //         nextQuestion();
+            //     }
+            // }, 300);
+        }
+
+        // 下一题
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        // 上一题
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion();
+            }
+        }
+
+        // 显示结果
+        function showResult() {
+            document.getElementById('quiz-page').classList.remove('active');
+            document.getElementById('loading-page').classList.add('active');
+            
+            // 模拟分析过程
+            setTimeout(() => {
+                document.getElementById('loading-page').classList.remove('active');
+                document.getElementById('result-page').classList.add('active');
+                renderResult();
+            }, 2000);
+        }
+
+        // 渲染结果
+        function renderResult() {
+            const totalScore = calculateCurrentScore();
+            const maxScore = questions.reduce((sum, q) => sum + q.weight, 0);
+            const percentage = Math.round((totalScore / maxScore) * 100);
+            
+            // 确定等级
+            let level, icon, title, subtitle, advice;
+            
+            if (percentage >= 76) {
+                level = 'hunter';
+                icon = '🗡️';
+                title = '持镰刀的猎人';
+                subtitle = '你已经具备了在股市生存的核心能力';
+                advice = '建议：可以小资金实盘尝试，但请记住——永远敬畏市场。即使是猎人，也可能在黑暗森林中遇到更强大的捕食者。建议先用不超过20%的资金实战，其余继续模拟验证。';
+            } else if (percentage >= 51) {
+                level = 'apprentice';
+                icon = '🎭';
+                title = '徘徊的学徒';
+                subtitle = '你有一定基础，但还不足以在真实市场中生存';
+                advice = '建议：坚持在模拟盘上练习至少6个月。实盘对你来说风险过高，很可能成为机构的"流动性"。先补齐薄弱环节，建立自己的交易系统后再考虑入市。';
+            } else if (percentage >= 26) {
+                level = 'lamb';
+                icon = '🐑';
+                title = '待宰的羔羊';
+                subtitle = '你的投资知识和技能严重不足';
+                advice = '建议：立刻远离股市！如果你现在入市，99%的概率会被收割。请先去学习基础知识，阅读经典投资书籍（如《聪明的投资者》《漫步华尔街》），至少1年后再考虑。';
+            } else {
+                level = 'leek';
+                icon = '🌱';
+                title = '纯种韭菜';
+                subtitle = '你对股市几乎一无所知，是完美的收割对象';
+                advice = '建议：绝对、绝对、绝对不要碰股票！不要信任何"内幕消息"、"股神推荐"。如果你真的想参与，可以定投指数基金，但请忘记择时和选股。与其送钱给市场，不如买点实物改善生活。';
+            }
+            
+            // 更新结果页基础信息
+            document.getElementById('result-icon').textContent = icon;
+            document.getElementById('result-title').textContent = title;
+            document.getElementById('result-score').textContent = `${Math.round(totalScore)}<span>/118</span>`;
+            document.getElementById('result-subtitle').textContent = subtitle;
+            document.getElementById('advice-text').textContent = advice;
+            
+            // 计算各维度得分
+            const dimensions = {
+                '基础能力': { score: 0, max: 0 },
+                '进阶能力': { score: 0, max: 0 },
+                '核心能力': { score: 0, max: 0 }
+            };
+            
+            // 统计各维度得分
+            questions.forEach((q, index) => {
+                const answer = answers[index];
+                if (answer) {
+                    dimensions[q.dimension].score += q.weight * scores[answer];
+                }
+                dimensions[q.dimension].max += q.weight;
+            });
+            
+            // 生成维度得分HTML
+            const dimensionScoresEl = document.getElementById('dimension-scores');
+            dimensionScoresEl.innerHTML = '';
+            
+            for (const [name, data] of Object.entries(dimensions)) {
+                const percent = Math.round((data.score / data.max) * 100);
+                const levelClass = percent >= 70 ? 'high' : percent >= 40 ? 'medium' : 'low';
+                
+                const dimensionHTML = `
+                    <div class="dimension-item">
+                        <div class="dimension-name">${name}</div>
+                        <div class="dimension-bar">
+                            <div class="dimension-fill ${levelClass}" style="width: ${percent}%"></div>
+                        </div>
+                        <div class="dimension-score">${Math.round(data.score)}/${data.max}</div>
+                    </div>
+                `;
+                
+                dimensionScoresEl.innerHTML += dimensionHTML;
+            }
+            
+            // 分析优势和不足
+            const strengthsList = document.getElementById('strengths-list');
+            const weaknessesList = document.getElementById('weaknesses-list');
+            
+            // 清空列表
+            strengthsList.innerHTML = '';
+            weaknessesList.innerHTML = '';
+            
+            // 按维度分析
+            const strengths = [];
+            const weaknesses = [];
+            
+            if (dimensions['基础能力'].score / dimensions['基础能力'].max >= 0.7) {
+                strengths.push('扎实的投资基础知识，能够理解市场基本运作逻辑');
+            } else {
+                weaknesses.push('基础投资知识薄弱，需要系统学习财务、技术分析等基础知识');
+            }
+            
+            if (dimensions['进阶能力'].score / dimensions['进阶能力'].max >= 0.7) {
+                strengths.push('具备进阶的投资分析能力，能够理解宏观经济和资产定价');
+            } else {
+                weaknesses.push('缺乏进阶分析能力，难以把握宏观趋势和资产合理估值');
+            }
+            
+            if (dimensions['核心能力'].score / dimensions['核心能力'].max >= 0.7) {
+                strengths.push('优秀的风险控制和心态管理能力，这是股市生存的核心');
+            } else {
+                weaknesses.push('风险控制和心态管理不足，这是股市中最致命的弱点');
+            }
+            
+            // 通用优势/不足
+            if (percentage >= 70) {
+                strengths.push('全面的投资素养，能够理性分析和决策');
+                strengths.push('良好的自我认知，清楚自己的能力边界');
+            } else if (percentage >= 50) {
+                strengths.push('有一定的自我认知，愿意学习和提升');
+                weaknesses.push('部分关键能力缺失，需要针对性补强');
+            } else {
+                weaknesses.push('缺乏基本的风险意识和自我认知');
+                weaknesses.push('容易被市场情绪左右，做出非理性决策');
+            }
+            
+            // 生成优势列表
+            strengths.forEach(strength => {
+                const li = document.createElement('li');
+                li.textContent = strength;
+                strengthsList.appendChild(li);
+            });
+            
+            // 生成不足列表
+            weaknesses.forEach(weakness => {
+                const li = document.createElement('li');
+                li.textContent = weakness;
+                weaknessesList.appendChild(li);
+            });
+        }
+        
+        // 重新开始测验
+        function restartQuiz() {
+            document.getElementById('result-page').classList.remove('active');
+            document.getElementById('welcome-page').classList.add('active');
+            currentQuestionIndex = 0;
+            answers = [];
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 确保初始状态正确
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById('welcome-page').classList.add('active');
+        });
+    </script>
+</body>
+</html>
